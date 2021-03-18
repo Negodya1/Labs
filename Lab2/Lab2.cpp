@@ -9,8 +9,8 @@ using namespace std;
 
 //Прототипы функций
 void PrintMatr(unsigned int X, unsigned int Y, double **A);
-bool TriangMatr(double **A, double **B, int n, int m);
-bool Solve(double **A, double **B, double *x, int n, int m);
+bool TriangMatr(double **A, double **B, int n, int m, double& det);
+bool Solve(double **A, double **B, double *x, int n, int m, double& det);
 double Delta(double **A, double *x, int n, int m);
 void SwitchStrings(double **B, int n, int m, int k);
 bool DoppelStrings(double **B, int n, int m, int k);
@@ -29,6 +29,7 @@ int main() {
 	double* results;
 	double* resbuf;
 	short int elementmode;
+	double det = 1;
 
 	//Создание двумерного массива
 	cout << "\nВведите размерность массива: ";
@@ -89,17 +90,17 @@ int main() {
 	PrintMatr(X, Y, B);
 
 	//Решение задач
-	Solve(A, B, results, X, Y);
+	if (Solve(A, B, results, X, Y, det) == true) {
+		cout << "Ответы: \n";
+		for (unsigned int i = 0; i < X; i++) {
+			cout << results[i];
+			if (i != X - 1) cout << ", ";
+			else cout << endl;
+		}
 
-	cout << "Ответы: \n";
-	for (unsigned int i = 0; i < X; i++) {
-		cout << results[i];
-		if (i != X - 1) cout << ", ";
-		else cout << endl;
+		cout << "\nПогрешность = " << Delta(A, results, X, Y) << endl;
+		cout << "\nОпределитель = " << det << endl;
 	}
-
-	cout << "\nПогрешность = " << Delta(A, results, X, Y) << endl;
-
 	//Освобождение памяти
 	for (unsigned int i = 0; i < X; i++) delete[] A[i];
 	delete[] A;
@@ -127,7 +128,7 @@ void PrintMatr(unsigned int X, unsigned int Y, double **A) {
 	}
 }
 
-bool TriangMatr(double **A, double **B, int n, int m) {
+bool TriangMatr(double **A, double **B, int n, int m, double& det) {
 	double koef;
 
 	for (unsigned int k = 0; k < n; k++) for (unsigned int i = k + 1; i < n; i++) {
@@ -135,14 +136,18 @@ bool TriangMatr(double **A, double **B, int n, int m) {
 		koef = -1 * B[i][k] / B[k][k];
 		for (unsigned int j = k; j < n + 1; j++) B[i][j] = B[i][j] + B[k][j] * koef;
 	}
-	//PrintMatr(n, n + 1, B);
+	for (unsigned int j = 0; j < n; j++) {
+		det *= B[j][j];
+	}
 
+	//PrintMatr(n, n + 1, B);
+	if (det == 0) return false;
 	return true;
 }
 
-bool Solve(double **A, double **B, double *x, int n, int m) {
+bool Solve(double **A, double **B, double *x, int n, int m, double& det) {
 	double res = 0;
-	if (TriangMatr(A, B, n, m) == true) {
+	if (TriangMatr(A, B, n, m, det) == true) {
 		for (int i = n - 1; i >= 0; i--) {
 			res = 0;
 			for (int j = i + 1; j <= n - 1; j++) res = res - x[j] * B[i][j];
@@ -231,7 +236,7 @@ void SwitchStrings(double **B, int n, int m, int k) {
 bool DoppelStrings(double **B, int n, int m, int k) {
 	for (int i = 0; i < k; i++) {
 		bool doppel = true;
-		for (unsigned int j = 0; j < m; j++) {
+		for (unsigned int j = 0; j < m - 1; j++) {
 			if (B[i][j] != B[k][j]) doppel = false;
 		}
 		if (doppel == true) {
