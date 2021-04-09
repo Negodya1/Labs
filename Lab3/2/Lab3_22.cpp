@@ -117,37 +117,46 @@ int main()
 	Product k;
 	MyQueue Q;
 
-	int newproduct = 0;
-	double newprice = 0.0;
+	short int m;
 	do {
-		cout << "\nВведите кол-во товара в поставке (0 для выхода): ";
-		cin >> newproduct;
+		cout << "\nВыберите режим работы\n1. Режим поставки\n2. Режим продажи\n0. Выход: ";
+		cin >> m;
+		if (m == 1) {
+			int newproduct = 0;
+			double newprice = 0.0;
+			do {
+				cout << "\nВведите кол-во товара в поставке (0 для выхода): ";
+				cin >> newproduct;
 
-		if (newproduct != 0) {
-			cout << "\nВведите стоимость закупки: ";
-			cin >> newprice;
+				if (newproduct != 0) {
+					cout << "\nВведите стоимость закупки: ";
+					cin >> newprice;
 
-			Product k1 = { newproduct, newprice };
-			Q.Push(k1);
-		}
-	} while (newproduct != 0);
-	Q.Info();
-	int sellc, sellp, selld;
-	do {
-		cout << "\n__________________\n";
-		cout << "\nВведите кол-во товара на продажу (0 для выхода): ";
-		cin >> sellc;
-		if (sellc > 0) {
-			cout << "\nВведите стоимость продажи: ";
-			cin >> sellp;
-			if (sellp < 0) sellp = 0;
-			selld = Q.Sell(sellc, sellp, true);
-			while (selld > 0) {
-				selld = Q.Sell(selld, sellp, false);
-			}
+					Product k1 = { newproduct, newprice };
+					Q.Push(k1);
+				}
+			} while (newproduct != 0);
 			Q.Info();
 		}
-	} while (sellc > 0);
+		if (m == 2) {
+			int sellc, sellp, selld;
+			do {
+				cout << "\n__________________\n";
+				cout << "\nВведите кол-во товара на продажу (0 для выхода): ";
+				cin >> sellc;
+				if (sellc > 0) {
+					cout << "\nВведите стоимость продажи: ";
+					cin >> sellp;
+					if (sellp < 0) sellp = 0;
+					selld = Q.Sell(sellc, sellp, true);
+					while (selld > 0) {
+						selld = Q.Sell(selld, sellp, false);
+					}
+					Q.Info();
+				}
+			} while (sellc > 0);
+		}
+	} while (m > 0 && m < 3);
 	cout << "\n__________________\n";
 	while (Q.Pop(k)) k.Out();
 	cout << endl;
