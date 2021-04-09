@@ -115,12 +115,22 @@ int main()
 	setlocale(LC_ALL, "rus");
 	int n = 10;
 	Product k;
-	Product k1 = { 100, 10.0 }, k2 = { 10, 20.0 };
 	MyQueue Q;
 
-	Q.Info();
-	Q.Push(k1);
-	Q.Push(k2);
+	int newproduct = 0;
+	double newprice = 0.0;
+	do {
+		cout << "\nВведите кол-во товара в поставке (0 для выхода): ";
+		cin >> newproduct;
+
+		if (newproduct != 0) {
+			cout << "\nВведите стоимость закупки: ";
+			cin >> newprice;
+
+			Product k1 = { newproduct, newprice };
+			Q.Push(k1);
+		}
+	} while (newproduct != 0);
 	Q.Info();
 	int sellc, sellp, selld;
 	do {
@@ -145,5 +155,3 @@ int main()
 
 	return 0;
 }
-
-
