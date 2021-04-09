@@ -188,6 +188,7 @@ int main() {
 				}
 			}
 			else if (task == 3) {
+				i = 0;
 				while (S.Pop(k));
 				S.Info();
 			}
