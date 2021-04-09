@@ -99,7 +99,7 @@ int MyQueue::Sell(int volume, double price, bool fsell) {
 			return 0;
 		}
 		else {
-			profit += (price - First->data.price) * volume;
+			profit += (price - First->data.price) * First->data.volume;
 			volume -= First->data.volume;
 			Pop(temp);
 			return volume;
