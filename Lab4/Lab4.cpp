@@ -215,20 +215,21 @@ int main() {
 			cout << "\nВес: ";
 			cin >> weight;
 
-			Book b = { name, pages, type, weight};
+			Book b = { name, pages, type, weight };
 
 			char* data;
 			int n;
 			b.Out();
 			b.Seria(data, n);
 			qu.Push(data, n);
+
+			delete[] data;
 		}
 		
 		if (m == 2) {
 			cout << "\nВведите название искомой книги: ";
 			string name;
 			cin >> name;
-			MyQueue qu2;
 			bool flag = false;
 			char* data;
 			int n;
@@ -239,10 +240,8 @@ int main() {
 				if (b.name == name) {
 					flag = true;
 				}
-				if (flag == false) qu2.Push(data, n);
-			}
-			while (qu2.Pop(data, n)) {
-				qu.Push(data, n);
+				if (flag == false) qu.Push(data, n);
+				delete[] data;
 			}
 			if (flag == false) cout << "\nТакой книги нет(\n";
 		}
@@ -250,7 +249,11 @@ int main() {
 		if (m == 3) {
 			char* data;
 			int n;
-			while (qu.Pop(data, n));
+			while (qu.Pop(data, n)) {
+				Book b = DeSeria(data, n);
+				b.Out();
+				delete[] data;
+			}
 		}
 
 		if (m == 4) {
@@ -284,6 +287,13 @@ int main() {
 		}
 		
 		qu.Info();
-	} while (m != 0 || m > 6);
-	
+	} while (m != 0 && m < 6);
+
+	char* data;
+	int n;
+	while (qu.Pop(data, n)) {
+		Book b = DeSeria(data, n);
+		b.Out();
+		delete[] data;
+	}
 }
