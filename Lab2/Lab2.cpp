@@ -24,7 +24,11 @@ int main() {
 	setlocale(LC_ALL, "rus");
 
 	unsigned int X, Y;
+	
 	double** A;
+	A = new double*[X];
+	for (unsigned int i = 0; i < X; i++) A[i] = new double[Y];
+	
 	double** B;
 	double* results;
 	double* resbuf;
@@ -35,9 +39,8 @@ int main() {
 	cout << "\nВведите размерность массива: ";
 	cin >> X;
 	Y = X + 1;
-
-	A = new double*[X];
-	for (unsigned int i = 0; i < X; i++) A[i] = new double[Y];
+	
+	
 
 	B = new double*[X];
 	for (unsigned int i = 0; i < X; i++) B[i] = new double[Y];
