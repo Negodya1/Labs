@@ -17,7 +17,7 @@ bool _keyLocked = false;
 
 class Funcs {
 public:
-	static std::vector<int> radiusPos(double degree, int radius) {
+	static std::vector<int> radiusPos(double degree, double radius) {
 		std::vector<int> res = { 0, 0 };
 
 		if (degree == 0) res[0] = radius;
@@ -97,9 +97,9 @@ public:
 
 class Parall {
 private:
-	unsigned int _w;
-	unsigned int _l;
-	unsigned int _h;
+	double _w;
+	double _l;
+	double _h;
 public:
 	Parall(unsigned int w = 1, unsigned int l = 1, unsigned int h = 1) {
 		_w = w;
@@ -114,6 +114,9 @@ public:
 		_h = h;
 	}
 
+	double getDWidth() {
+		return _w;
+	}
 	int getWidth() {
 		return _w;
 	}
@@ -123,28 +126,35 @@ public:
 	int getLength() {
 		return _l;
 	}
+	double getDLength() {
+		return _l;
+	}
 	void setLength(unsigned int l = 1) {
 		_l = l;
 	}
 
-	virtual double calcVolume() {
-		return _w * _h * _l;
+	virtual double calcSquare() {
+		return _w * _l;
+	}
+
+	double calcVolume() {
+		return calcSquare() * _h;
 	}
 	
-	virtual void render() {
+	virtual short int render() {
 		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 0, 0));
 
 		short int mod = 1;
-		if (_w + _h + _l < 10) mod = 100;
-		else if (_w + _h + _l < 100) mod = 10;
-		else if (_w + _h + _l < 200) mod = 2;
+		if (_w + _h + _l < 8) mod = 50;
+		else if (_w + _h + _l < 80) mod = 10;
+		else if (_w + _h + _l < 160) mod = 2;
 
 		int startPosX = (_w + _l) * mod + 10;
 		int startPosY = 10;
 
 		for (int i = 0; i < _w * mod; i++) {
 			rect = { startPosX + i, startPosY + i, 1, 1 };
-			if (i % 2 == 0) SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
 
 			rect.x -= _l * mod;
 			rect.y += _l * mod;
@@ -152,20 +162,20 @@ public:
 
 			rect.y += (_h - _l) * mod;
 			rect.x += _l * mod;
-			if (i % 2 == 0) SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+			if (i % 2 == 0) SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
 
 			rect.y += _l * mod;
 			rect.x -= _l * mod;
-			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
 		}
 
 		for (int i = _l * mod; i > 0; i--) {
 			rect = { startPosX - i, startPosY + i - 1, 1, 1 };
-			if (i % 2 == 0) SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
 
 			rect.x += _w * mod;
 			rect.y += _w * mod;
-			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
 
 			rect.y += (_h - _w) * mod;
 			rect.x -= _w * mod;
@@ -195,27 +205,86 @@ public:
 		}
 
 		SDL_UpdateWindowSurface(window);
+		return mod;
+	}
+
+	void renderCylinder() {
+		double square = calcSquare();
+		double radius = sqrt(square / PI);
+
+		short int mod = render();
+		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 0, 0));
+
+		int startPosX = radius * mod * 2 + 10;
+		int startPosY = radius * mod + 10;
+
+		for (double i = 0; i <= 90; i += 0.1) {
+			std::vector<int> vec = Funcs::radiusPos(i, radius * mod);
+
+			rect = { startPosX + vec[0], startPosY + vec[1] / 2, 1, 1 };
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+
+			int ri = radius;
+			int iint = i;
+
+			rect.y += getHeight() * mod;
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+
+			rect = { startPosX - vec[0], startPosY + vec[1] / 2, 1, 1 };
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+
+			rect.y += getHeight() * mod;
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+
+			rect = { startPosX - vec[0], startPosY - vec[1] / 2, 1, 1 };
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+
+			if (iint % 5 == 0) {
+				rect.y += getHeight() * mod;
+				SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+			}
+
+			rect = { startPosX + vec[0], startPosY - vec[1] / 2, 1, 1 };
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 0, 255));
+
+			if (iint % 5 == 0) {
+				rect.y += getHeight() * mod;
+				SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 0, 255, 0));
+			}
+		}
+
+		for (int i = 0; i < getHeight() * mod; i++) {
+			int buf = startPosX + (radius * mod) + 1;
+			rect = { buf, startPosY + i, 1, 1 };
+
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 255, 0, 0));
+
+			rect.x -= 2 * radius * mod;
+			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 255, 0, 0));
+		}
+
+		SDL_UpdateWindowSurface(window);
 	}
 };
 
 class Circle : public Parall {
 private:
-	unsigned int _r;
+	double _r;
 public:
 	Circle(unsigned int r = 1, unsigned int h = 1) {
 		_r = r;
 		setHeight(h);
 	}
 
-	virtual double calcVolume() {
-		return (PI * getHeight() * (_r * _r));
+	virtual double calcSquare() {
+		return PI * (_r * _r);
 	}
 
-	virtual void render() {
+	virtual short int render() {
 		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 0, 0));
 
 		short int mod = 1;
-		if (_r + getHeight() < 8) mod = 100;
+		if (_r + getHeight() < 8) mod = 50;
 		else if (_r + getHeight() < 80) mod = 10;
 		else if (_r + getHeight() < 160) mod = 2;
 
@@ -259,7 +328,7 @@ public:
 
 		for (int i = 0; i < getHeight() * mod; i++) {
 			int ri = _r;
-			rect = { startPosX + (ri * mod), startPosY + i, 1, 1 };
+			rect = { startPosX + (ri * mod) + 1, startPosY + i, 1, 1 };
 
 			SDL_FillRect(screenSurface, &rect, SDL_MapRGB(screenSurface->format, 255, 0, 0));
 
@@ -268,6 +337,7 @@ public:
 		}
 
 		SDL_UpdateWindowSurface(window);
+		return mod;
 	}
 };
 
@@ -279,17 +349,17 @@ public:
 		setLength(l);
 	}
 
-	virtual double calcVolume() {
-		return ((getWidth() * getLength()) / 2) * getHeight();
+	virtual double calcSquare() {
+		return (getDWidth() * getDLength()) / 2;
 	}
 
-	virtual void render() {
+	virtual short int render() {
 		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 0, 0));
 
 		short int mod = 1;
-		if (getWidth() + getHeight() + getLength() < 10) mod = 100;
-		else if (getWidth() + getHeight() + getLength() < 100) mod = 10;
-		else if (getWidth() + getHeight() + getLength() < 200) mod = 2;
+		if (getWidth() + getHeight() + getLength() < 8) mod = 50;
+		else if (getWidth() + getHeight() + getLength() < 80) mod = 10;
+		else if (getWidth() + getHeight() + getLength() < 160) mod = 2;
 
 		int startPosX = (getWidth() + (getLength() / 5)) * mod + 10;
 		int startPosY = 10;
@@ -333,19 +403,20 @@ public:
 		}
 
 		SDL_UpdateWindowSurface(window);
+		return mod;
 	}
 };
 
 int main(int argc, char* args[]) {
 	setlocale(LC_ALL, "rus");
 
-	Parall _par = { 4, 6, 5 };
+	Parall _par = { 5, 5, 5 };
 	Parall& _buf = _par;
 
-	Circle _circ = { 7, 5 };
+	Circle _circ = { 7, 8 };
 	Parall& _buf2 = _circ;
 
-	Triangle _tri = { 6, 6, 6 };
+	Triangle _tri = { 5, 5, 5 };
 	Parall& _buf3 = _tri;
 
 	std::vector<int> test = Funcs::radiusPos(135, 10);
@@ -380,22 +451,40 @@ int main(int argc, char* args[]) {
 					if (_keyPressed[SDL_SCANCODE_1]) {
 						_buf.render();
 
-						std::cout << "Площадь параллелограмма = " << _buf.calcVolume() << "\n";
+						std::cout << "Площадь основания = " << _buf.calcSquare() << "\n";
+						std::cout << "Объём параллелограмма = " << _buf.calcVolume() << "\n";
 						std::cout << _par.calcVolume() << "\n\n";
 						_keyLocked = true;
 					}
 					else if (_keyPressed[SDL_SCANCODE_2]) {
 						_buf2.render();
 
-						std::cout << "Площадь цилиндра = " << _buf2.calcVolume() << "\n";
+						std::cout << "Площадь основания = " << _buf2.calcSquare() << "\n";
+						std::cout << "Объём цилиндра = " << _buf2.calcVolume() << "\n";
 						std::cout << _circ.calcVolume() << "\n\n";
 						_keyLocked = true;
 					}
 					else if (_keyPressed[SDL_SCANCODE_3]) {
 						_buf3.render();
 
-						std::cout << "Площадь прямоугольника = " << _buf3.calcVolume() << "\n";
+						std::cout << "Площадь основания = " << _buf3.calcSquare() << "\n";
+						std::cout << "Объём прямоугольника = " << _buf3.calcVolume() << "\n";
 						std::cout << _tri.calcVolume() << "\n\n";
+						_keyLocked = true;
+					}
+					else if (_keyPressed[SDL_SCANCODE_4]) {
+						std::cout << "Площадь основания = " << _buf.calcSquare() << "\n";
+						_buf.renderCylinder();
+						_keyLocked = true;
+					}
+					else if (_keyPressed[SDL_SCANCODE_5]) {
+						std::cout << "Площадь основания = " << _buf2.calcSquare() << "\n";
+						_buf2.renderCylinder();
+						_keyLocked = true;
+					}
+					else if (_keyPressed[SDL_SCANCODE_6]) {
+						std::cout << "Площадь основания = " << _buf3.calcSquare() << "\n";
+						_buf3.renderCylinder();
 						_keyLocked = true;
 					}
 				}
